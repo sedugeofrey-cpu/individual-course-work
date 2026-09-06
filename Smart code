@@ -1,0 +1,85 @@
+SMART STUDY PLANNER
+Individual Assignment – Python Console Application
+Student Name: Sedu Geofrey
+GitHub account email: Sedugeofrey@gmail.com
+Programme: Diploma in Information Technology
+1. System Summary
+The Smart Study Planner is a console-based Python application designed to help a student record, review, search and analyse study sessions during a semester. Each session stores the subject, topic covered, date/day label and duration in minutes. The application uses a menu-driven interface and separates its operations into clearly named functions.
+The system also provides automatic session classification: Short sessions are below 30 minutes, Medium sessions are 30–90 minutes, and Long sessions are above 90 minutes. Study statistics calculate the total study time, study time per subject, the subject with the least study time, and the longest individual session.
+2. Main Functions Implemented
+Function
+Purpose
+
+main()
+Controls the menu and keeps the application running until Save and exit is selected.
+
+add_session()
+Collects session details, validates duration and stores a dictionary in the sessions list.
+
+classify_session(duration)
+Classifies a duration as Short, Medium or Long.
+
+view_sessions()
+Displays all saved sessions in a formatted table.
+
+search_by_subject()
+Performs a case-insensitive subject search and calculates total time.
+
+study_statistics()
+Calculates overall hours, per-subject hours, weakest subject and longest session.
+
+save_sessions()
+Writes all sessions to study_log.txt.
+
+load_sessions()
+Loads existing records at startup and safely handles a missing file.
+
+3. Evidence of System Operation
+The following screenshots were generated from actual test runs of the submitted Python source code. The tests demonstrate adding records, viewing them, searching without case sensitivity, calculating statistics, rejecting an invalid menu option, saving data and loading it again on a second run.
+Screenshot 1: Menu, Add Sessions and View Sessions
+
+Screenshot 2: Search, Statistics and Invalid Menu Choice
+
+Screenshot 3: Persistence Across Runs
+
+4. Data Storage
+The program uses a plain-text file named study_log.txt. Each study session is stored as one record. When the program starts, load_sessions() attempts to read the file. If the file does not exist, the program starts with an empty list instead of crashing. Selecting Save and exit rewrites the file with all current sessions.
+5. Testing Results
+Test
+Expected result
+Result
+
+Valid duration
+25, 60 and 120 minutes accepted
+PASS
+
+Invalid duration
+Non-numeric/non-positive input is rejected and re-prompted
+PASS
+
+Classification
+25=Short, 60=Medium, 120=Long
+PASS
+
+Case-insensitive search
+PYTHON PROGRAMMING finds Python Programming records
+PASS
+
+Statistics
+Overall, per-subject, weakest subject and longest session displayed
+PASS
+
+Invalid menu choice
+Choice 9 is rejected without crashing
+PASS
+
+Persistence
+Second run automatically loads previously saved sessions
+PASS
+
+Missing file
+First run works when study_log.txt does not exist
+PASS
+
+6. GitHub Submission
+The source file is smart_study_planner.py. The README.md provides instructions for running the application. The GitHub repository should be created under the student's own GitHub account associated with Sedugeofrey@gmail.com. The final repository URL should be pasted into the answer sheet after the repository has been published.
