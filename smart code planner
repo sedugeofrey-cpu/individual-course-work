@@ -1,0 +1,404 @@
+import json
+import os
+from collections import defaultdict
+
+FILE_NAME = "study_log.txt"
+
+
+def classify_session(duration):
+
+    if duration < 30:
+        return "Short"
+    elif duration <= 90:
+        return "Medium"
+    else:
+        return "Long"
+
+def add_session(sessions):
+
+    print("\n========== ADD STUDY SESSION ==========")
+    subject = input("Enter subject name: ").strip()
+
+    while subject == "":
+        print("Subject name cannot be empty.")
+        subject = input("Enter subject name: ").strip()
+
+    topic = input("Enter topic covered: ").strip()
+
+    while topic == "":
+        print("Topic cannot be empty.")
+        topic = input("Enter topic covered: ").strip()
+
+    date = input("Enter date/day label: ").strip()
+
+    while date == "":
+        print("Date/day label cannot be empty.")
+        date = input("Enter date/day label: ").strip()
+
+    while True:
+        try:
+            duration = int(input("Enter duration in minutes: "))
+
+            if duration <= 0:
+                print("Duration must be a positive number.")
+            else:
+                break
+
+        except ValueError:
+            print("Invalid input. Please enter a whole number.")
+
+    session = {
+        "subject": subject,
+        "topic": topic,
+        "date": date,
+        "duration": duration
+    }
+
+    sessions.append(session)
+
+    print("\nStudy session added successfully!")
+
+def view_sessions(sessions):
+
+    print("\n================ ALL STUDY SESSIONS ================")
+
+    if not sessions:
+        print("No study sessions have been recorded yet.")
+        return
+    print(
+        f"{'No.':<5}"
+        f"{'Subject':<20}"
+        f"{'Topic':<25}"
+        f"{'Date/Day':<15}"
+        f"{'Minutes':<10}"
+        f"{'Class':<10}"
+    )
+
+    print("-" * 85)
+
+    for number, session in enumerate(sessions, start=1):
+
+        classification = classify_session(
+            session["duration"]
+        )
+
+        print(
+            f"{number:<5}"
+            f"{session['subject']:<20}"
+            f"{session['topic']:<25}"
+            f"{session['date']:<15}"
+            f"{session['duration']:<10}"
+            f"{classification:<10}"
+        )
+
+def search_by_subject(sessions, subject):
+
+    search_subject = subject.strip().lower()
+
+    if search_subject == "":
+        print("Subject cannot be empty.")
+        return
+
+    matching_sessions = []
+
+    for session in sessions:
+
+        if session["subject"].strip().lower() == search_subject:
+            matching_sessions.append(session)
+
+    print("\n================ SEARCH RESULTS ================")
+
+    if not matching_sessions:
+        print("No sessions found for that subject.")
+        return
+
+    total_minutes = 0
+
+    for number, session in enumerate(matching_sessions, start=1):
+
+        classification = classify_session(
+            session["duration"]
+        )
+
+        print(
+            f"{number}. "
+            f"Subject: {session['subject']} | "
+            f"Topic: {session['topic']} | "
+            f"Date: {session['date']} | "
+            f"Duration: {session['duration']} minutes | "
+            f"Class: {classification}"
+        )
+
+        total_minutes += session["duration"]
+
+    total_hours = total_minutes / 60
+
+    print(
+        f"\nTotal time spent on "
+        f"{matching_sessions[0]['subject']}: "
+        f"{total_hours:.2f} hours"
+    )
+
+def study_statistics(sessions):
+    print("\n================ STUDY STATISTICS ================")
+
+    if not sessions:
+        print("No study sessions are available.")
+        return
+    total_minutes = 0
+
+    for session in sessions:
+        total_minutes += session["duration"]
+
+    total_hours = total_minutes / 60
+
+    print(
+        f"\nTotal hours studied overall: "
+        f"{total_hours:.2f} hours"
+    )
+
+    subject_totals = defaultdict(int)
+
+    for session in sessions:
+
+        subject = session["subject"]
+
+        subject_totals[subject] += session["duration"]
+
+    print("\nTotal hours studied per subject:")
+
+    for subject, minutes in subject_totals.items():
+
+        hours = minutes / 60
+
+        print(
+            f"- {subject}: {hours:.2f} hours"
+        )
+
+    weakest_subject = min(
+        subject_totals,
+        key=subject_totals.get
+    )
+
+    weakest_hours = (
+        subject_totals[weakest_subject] / 60
+    )
+
+    print(
+        f"\nSubject with least total study time "
+        f"(weakest area): {weakest_subject}"
+    )
+
+    print(
+        f"Time spent: {weakest_hours:.2f} hours"
+    )
+
+    longest_session = max(
+        sessions,
+        key=lambda session: session["duration"]
+    )
+
+    classification = classify_session(
+        longest_session["duration"]
+    )
+
+    print("\nSingle longest session:")
+
+    print(
+        f"Subject: {longest_session['subject']}"
+    )
+
+    print(
+        f"Topic: {longest_session['topic']}"
+    )
+
+    print(
+        f"Date: {longest_session['date']}"
+    )
+
+    print(
+        f"Duration: "
+        f"{longest_session['duration']} minutes"
+    )
+
+    print(
+        f"Classification: {classification}"
+    )
+
+def save_sessions(sessions):
+    try:
+
+        with open(
+            FILE_NAME,
+            "w",
+            encoding="utf-8"
+        ) as file:
+
+            for session in sessions:
+
+                file.write(
+                    json.dumps(session) + "\n"
+                )
+
+        print(
+            f"\nSessions successfully saved to "
+            f"{FILE_NAME}"
+        )
+
+    except OSError as error:
+
+        print(
+            f"Error saving sessions: {error}"
+        )
+
+
+def load_sessions():
+
+
+    sessions = []
+    if not os.path.exists(FILE_NAME):
+
+        return sessions
+
+    try:
+
+        with open(
+            FILE_NAME,
+            "r",
+            encoding="utf-8"
+        ) as file:
+
+            for line_number, line in enumerate(
+                file,
+                start=1
+            ):
+
+                line = line.strip()
+
+                if line == "":
+                    continue
+
+                try:
+
+                    session = json.loads(line)
+
+                    if (
+                        isinstance(session, dict)
+                        and "subject" in session
+                        and "topic" in session
+                        and "date" in session
+                        and "duration" in session
+                        and isinstance(
+                            session["duration"],
+                            int
+                        )
+                        and session["duration"] > 0
+                    ):
+
+                        sessions.append(session)
+
+                    else:
+
+                        print(
+                            f"Invalid record on line "
+                            f"{line_number}. Skipped."
+                        )
+
+                except json.JSONDecodeError:
+
+                    print(
+                        f"Could not read line "
+                        f"{line_number}. Skipped."
+                    )
+
+    except OSError as error:
+
+        print(
+            f"Error loading sessions: {error}"
+        )
+
+    return session
+
+def display_menu():
+
+    print("\n")
+    print("=" * 50)
+    print("             SMART STUDY PLANNER")
+    print("=" * 50)
+
+    print("1. Add a study session")
+    print("2. View all sessions")
+    print("3. Search sessions by subject")
+    print("4. View statistics")
+    print("5. Save and exit")
+
+    print("=" * 50)
+
+
+def main():
+    sessions = load_sessions()
+
+    if sessions:
+
+        print(
+            f"Loaded {len(sessions)} existing "
+            f"study session(s)."
+        )
+
+    else:
+
+        print(
+            "No existing study sessions found."
+        )
+
+    while True:
+
+        display_menu()
+
+        choice = input(
+            "Enter your choice (1-5): "
+        ).strip()
+
+        if choice == "1":
+
+            add_session(sessions)
+
+        elif choice == "2":
+
+            view_sessions(sessions)
+
+        elif choice == "3":
+
+            subject = input(
+                "Enter subject to search: "
+            )
+
+            search_by_subject(
+                sessions,
+                subject
+            )
+
+        elif choice == "4":
+
+            study_statistics(sessions)
+
+        elif choice == "5":
+
+            save_sessions(sessions)
+
+            print(
+                "Thank you for using "
+                "Smart Study Planner!"
+            )
+
+            break
+
+        else:
+
+            print(
+                "\nInvalid menu choice."
+                " Please select a number from 1 to 5."
+            )
+
+if __name__ == "__main__":
+    main()
